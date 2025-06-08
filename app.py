@@ -6,18 +6,18 @@ from ultralytics import YOLO
 import os
 import requests
 from pathlib import Path
+import gdown
 
 # Download model dari Google Drive jika belum ada
 @st.cache_resource
 def download_model():
     model_path = Path("best.pt")
     if not model_path.exists():
-        with st.spinner("📥 Mengunduh model YOLOv11..."):
-            url = "https://drive.google.com/uc?export=download&id=1ZIzU9H-dbyaHdyILA2XoWpxxNxEZ1qOw"
-            response = requests.get(url)
-            model_path.write_bytes(response.content)
-            st.success("✅ Model berhasil diunduh!")
+        # Gunakan ID dari Google Drive link
+        url = "https://drive.google.com/uc?id=1ZIzU9H-dbyaHdyILA2XoWpxxNxEZ1qOw"
+        gdown.download(url, str(model_path), quiet=False)
     return YOLO(str(model_path))
+
 
 # Load model
 model = download_model()

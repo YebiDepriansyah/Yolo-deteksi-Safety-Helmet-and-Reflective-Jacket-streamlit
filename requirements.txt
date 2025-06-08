@@ -1,6 +1,6 @@
 streamlit
-opencv-python
-ultralytics
+opencv-python==4.7.0.72
+ultralytics==8.0.20
 Pillow
 numpy
 python-multipart

@@ -13,11 +13,10 @@ import gdown
 def download_model():
     model_path = Path("best.pt")
     if not model_path.exists():
-        # Gunakan ID dari Google Drive link
-        url = "https://drive.google.com/uc?id=1ZIzU9H-dbyaHdyILA2XoWpxxNxEZ1qOw"
+        file_id = "1JtYh2YZ1Lc-2UShqSiLFi5CaOntE1kAh"
+        url = f"https://drive.google.com/uc?id={file_id}"
         gdown.download(url, str(model_path), quiet=False)
     return YOLO(str(model_path))
-
 
 # Load model
 model = download_model()

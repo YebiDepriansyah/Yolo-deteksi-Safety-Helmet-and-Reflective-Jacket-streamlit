@@ -9,17 +9,36 @@ from pathlib import Path
 import gdown
 
 # Download model dari Google Drive jika belum ada
-@st.cache_resource
-def download_model():
-    model_path = Path("best.pt")
-    if not model_path.exists():
-        file_id = "1JtYh2YZ1Lc-2UShqSiLFi5CaOntE1kAh"
-        url = f"https://drive.google.com/uc?id={file_id}"
-        gdown.download(url, str(model_path), quiet=False)
-    return YOLO(str(model_path))
+def download_file_from_google_drive(id, destination):
+    URL = "https://docs.google.com/uc?export=download"
 
-# Load model
-model = download_model()
+    session = requests.Session()
+
+    response = session.get(URL, params={'id': id}, stream=True)
+    token = get_confirm_token(response)
+
+    if token:
+        params = {'id': id, 'confirm': token}
+        response = session.get(URL, params=params, stream=True)
+
+    save_response_content(response, destination)
+
+def get_confirm_token(response):
+    for key, value in response.cookies.items():
+        if key.startswith('download_warning'):
+            return value
+    return None
+
+def save_response_content(response, destination):
+    CHUNK_SIZE = 32768
+    with open(destination, "wb") as f:
+        for chunk in response.iter_content(CHUNK_SIZE):
+            if chunk:
+                f.write(chunk)
+
+model_path = Path("best.pt")
+if not model_path.exists():
+    download_file_from_google_drive("1JtYh2YZ1Lc-2UShqSiLFi5CaOntE1kAh", model_path)
 
 # Sidebar sebagai Navbar
 st.sidebar.title("🔍 Menu Deteksi")

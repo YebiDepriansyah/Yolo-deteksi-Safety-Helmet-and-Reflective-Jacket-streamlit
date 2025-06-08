@@ -40,6 +40,9 @@ model_path = Path("best.pt")
 if not model_path.exists():
     download_file_from_google_drive("1JtYh2YZ1Lc-2UShqSiLFi5CaOntE1kAh", model_path)
 
+# Load model sekali saja agar efisien
+model = YOLO(str(model_path))
+
 # Sidebar sebagai Navbar
 st.sidebar.title("🔍 Menu Deteksi")
 option = st.sidebar.radio("Pilih Jenis Input:", ["📷 Gambar", "🎞️ Video", "📹 Kamera (Real-Time)"])
@@ -84,29 +87,21 @@ elif option == "🎞️ Video":
 
         cap.release()
 
-# --- Deteksi Kamera Real-Time ---
+# --- Deteksi Kamera Real-Time dengan st.camera_input ---
 elif option == "📹 Kamera (Real-Time)":
     st.header("📹 Deteksi Kamera (Real-Time)")
-    run = st.checkbox("✅ Mulai Kamera")
-    stframe = st.empty()
+    st.markdown("Tekan tombol di bawah untuk mengambil gambar dari kamera Anda.")
+    
+    img_file_buffer = st.camera_input("📸 Ambil Foto")
 
-    if run:
-        cap = cv2.VideoCapture(0)
-        if not cap.isOpened():
-            st.error("❌ Tidak dapat mengakses kamera.")
-        else:
-            while run:
-                ret, frame = cap.read()
-                if not ret:
-                    st.warning("⚠️ Gagal membaca frame dari kamera.")
-                    break
+    if img_file_buffer is not None:
+        image = Image.open(img_file_buffer).convert("RGB")
+        img_array = np.array(image)
 
-                results = model.predict(frame, conf=0.5)
-                result_frame = results[0].plot()
+        results = model.predict(img_array, conf=0.5)
+        result_img = results[0].plot()
 
-                stframe.image(result_frame, channels="BGR", use_column_width=True)
-
-            cap.release()
+        st.image(result_img, caption="🟢 Hasil Deteksi dari Kamera", use_column_width=True)
 
 # --- Footer Informasi ---
 st.markdown("---")
